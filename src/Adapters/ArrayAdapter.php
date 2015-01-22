@@ -40,9 +40,7 @@ class ArrayAdapter implements CacheAdapterInterface
      */
     public function delete($key)
     {
-        if ($this->exists($key)) {
-            unset($this->data[$key]);
-        }
+        unset($this->data[$key]);
     }
 
     /**
