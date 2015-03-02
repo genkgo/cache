@@ -31,12 +31,12 @@ class SimpleCallbackAdapter implements CallbackCacheInterface
     public function get($key, callable $cb)
     {
         $item = $this->cache->get($key);
-        if ($item) {
+        if ($item === null) {
+            $item = $cb();
+            $this->cache->set($key, $item);
+            return $item;
+        } else {
             return $item;
         }
-
-        $item = $cb();
-        $this->cache->set($key, $item);
-        return $item;
     }
 }
