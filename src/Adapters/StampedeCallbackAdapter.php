@@ -38,7 +38,10 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
         $this->pregenerateIn  = $pregenerateInSeconds;
     }
 
-    public function useInvalidDateOnException ()
+    /**
+     *
+     */
+    public function useInvalidDateOnException()
     {
         $this->useInvalidDataOnException = true;
     }
@@ -76,7 +79,7 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
      * @param $key
      * @return bool
      */
-    private function needsPregeneration ($key)
+    private function needsPregeneration($key)
     {
         $regenerateOn = $this->cache->get('sp' . $key);
         if ($regenerateOn === null) {
@@ -94,7 +97,7 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
     /**
      * @param $key
      */
-    private function lock ($key)
+    private function lock($key)
     {
         $this->cache->set('sp' . $key, 'locked');
     }
@@ -102,7 +105,7 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
     /**
      * @param $key
      */
-    private function unlock ($key)
+    private function unlock($key)
     {
         $interval = new DateInterval('PT' . $this->pregenerateIn . 'S');
         $regeneratedOn = (new DateTimeImmutable('now'))->add($interval)->format(DateTime::ISO8601);

@@ -8,8 +8,8 @@ use Stash\Pool;
  * Class StashAdapter
  * @package Genkgo\Cache\Adapters\Stash
  */
-class StashAdapter implements CacheAdapterInterface {
-
+class StashAdapter implements CacheAdapterInterface
+{
     /**
      * @var Pool
      */
@@ -24,7 +24,8 @@ class StashAdapter implements CacheAdapterInterface {
      * @param Pool $pool
      * @param null $expire
      */
-    public function __construct (Pool $pool, $expire = null) {
+    public function __construct(Pool $pool, $expire = null)
+    {
         $this->pool = $pool;
         $this->expire = $expire;
     }
