@@ -57,16 +57,7 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
         $currentItem = $this->cache->get($key);
         if ($currentItem === null || $this->needsPregeneration($key) === true) {
             $this->lock($key);
-            try {
-                $item = $cb();
-            } catch (Exception $e) {
-                if ($this->useInvalidDataOnException) {
-                    $item = $currentItem;
-                } else {
-                    $this->unlock($key, 0);
-                    throw $e;
-                }
-            }
+            $item = $this->pregenerate($key, $cb, $currentItem);
             $this->cache->set($key, $item);
             $this->unlock($key);
             return $item;
@@ -92,6 +83,28 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
 
         $regenerateOn = DateTimeImmutable::createFromFormat(DateTime::ISO8601, $regenerateOn);
         return ($regenerateOn <= new DateTimeImmutable('now'));
+    }
+
+    /**
+     * @param $key
+     * @param callable $cb
+     * @param $currentItem
+     * @return $item
+     * @throws Exception
+     */
+    private function pregenerate ($key, callable $cb, $currentItem) {
+        try {
+            $item = $cb();
+        } catch (Exception $e) {
+            if ($this->useInvalidDataOnException) {
+                $item = $currentItem;
+            } else {
+                $this->unlock($key, 0);
+                throw $e;
+            }
+        }
+
+        return $item;
     }
 
     /**
