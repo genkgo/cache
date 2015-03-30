@@ -1,6 +1,9 @@
 <?php
 namespace Genkgo\Cache\Adapters;
 
+use DateInterval;
+use DateTime;
+use DateTimeImmutable;
 use Exception;
 use Genkgo\Cache\CacheAdapterInterface;
 use Genkgo\Cache\CallbackCacheInterface;
@@ -16,8 +19,14 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
      */
     private $cache;
 
+    /**
+     * @var int
+     */
     private $pregenerateIn;
 
+    /**
+     * @var bool
+     */
     private $useInvalidDataOnException = false;
 
     /**
@@ -27,6 +36,11 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
     {
         $this->cache = $cache;
         $this->pregenerateIn  = $pregenerateInSeconds;
+    }
+
+    public function useInvalidDateOnException ()
+    {
+        $this->useInvalidDataOnException = true;
     }
 
     /**
@@ -58,6 +72,10 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
         }
     }
 
+    /**
+     * @param $key
+     * @return bool
+     */
     private function needsPregeneration ($key)
     {
         $regenerateOn = $this->cache->get('sp' . $key);
@@ -69,18 +87,25 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
             return false;
         }
 
-        $regenerateOn = \DateTimeImmutable::createFromFormat(\DateTime::ISO8601, $regenerateOn);
-        return ($regenerateOn <= new \DateTimeImmutable('now'));
+        $regenerateOn = DateTimeImmutable::createFromFormat(DateTime::ISO8601, $regenerateOn);
+        return ($regenerateOn <= new DateTimeImmutable('now'));
     }
 
+    /**
+     * @param $key
+     */
     private function lock ($key)
     {
         $this->cache->set('sp' . $key, 'locked');
     }
 
+    /**
+     * @param $key
+     */
     private function unlock ($key)
     {
-        $interval = 'PT' . $this->pregenerateIn . 'S';
-        $this->cache->set('sp' . $key, (new \DateTimeImmutable('now'))->add(new \DateInterval($interval)));
+        $interval = new DateInterval('PT' . $this->pregenerateIn . 'S');
+        $regeneratedOn = (new DateTimeImmutable('now'))->add($interval)->format(DateTime::ISO8601);
+        $this->cache->set('sp' . $key, $regeneratedOn);
     }
 }
