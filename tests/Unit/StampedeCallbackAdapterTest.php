@@ -164,7 +164,7 @@ class StampedeCallbackAdapterTest extends AbstractTestCase
             ->with($this->equalTo('spitem'), $this->matchesRegularExpression($this->getIso8601Regex()));
 
         $callbackCache = new StampedeCallbackAdapter($mock, 10);
-        $callbackCache->useInvalidDateOnException();
+        $callbackCache->useInvalidDataOnException();
         $item = $callbackCache->get('item', function () {
             throw new Exception('Due to some reason the cache cannot be regenerated');
         });

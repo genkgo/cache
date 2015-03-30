@@ -41,7 +41,7 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
     /**
      *
      */
-    public function useInvalidDateOnException()
+    public function useInvalidDataOnException()
     {
         $this->useInvalidDataOnException = true;
     }
@@ -92,7 +92,8 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
      * @return mixed
      * @throws Exception
      */
-    private function pregenerate ($key, callable $cb, $currentItem) {
+    private function pregenerate($key, callable $cb, $currentItem)
+    {
         try {
             $item = $cb();
         } catch (Exception $e) {
