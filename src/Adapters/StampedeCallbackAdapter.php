@@ -89,7 +89,7 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
      * @param $key
      * @param callable $cb
      * @param $currentItem
-     * @return $item
+     * @return mixed
      * @throws Exception
      */
     private function pregenerate ($key, callable $cb, $currentItem) {
