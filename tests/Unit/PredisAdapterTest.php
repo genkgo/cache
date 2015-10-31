@@ -32,7 +32,7 @@ class PredisAdapterTest extends AbstractTestCase
     public function testSet()
     {
         $client = $this->getMock(ClientInterface::class);
-        $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', null])->willReturn(null);
+        $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', null, null])->willReturn(null);
         $client->expects($this->at(1))->method('__call')->with('get', ['item'])->willReturn('value');
 
         $cache = new PredisAdapter($client);
@@ -46,7 +46,7 @@ class PredisAdapterTest extends AbstractTestCase
     public function testDelete()
     {
         $client = $this->getMock(ClientInterface::class);
-        $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', null]);
+        $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', null, null]);
         $client->expects($this->at(1))->method('__call')->with('del', [['item']]);
 
         $cache = new PredisAdapter($client);
@@ -60,7 +60,7 @@ class PredisAdapterTest extends AbstractTestCase
     public function testTtl()
     {
         $client = $this->getMock(ClientInterface::class);
-        $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', 300]);
+        $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', 'ex', 300]);
 
         $cache = new PredisAdapter($client, 300);
         $cache->set('item', 'value');
@@ -72,7 +72,7 @@ class PredisAdapterTest extends AbstractTestCase
     public function testDeleteAll()
     {
         $client = $this->getMock(ClientInterface::class);
-        $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', null]);
+        $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', null, null]);
         $client->expects($this->at(1))->method('__call')->with('keys', ['*'])->willReturn(['item']);
         $client->expects($this->at(2))->method('getOptions')->willReturn(new stdClass());
         $client->expects($this->at(3))->method('__call')->with('del', [['item']]);
@@ -91,7 +91,7 @@ class PredisAdapterTest extends AbstractTestCase
         $options->prefix = (new PrefixOption())->filter($this->getMock(OptionsInterface::class), 'cache:');
 
         $client = $this->getMock(ClientInterface::class);
-        $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', null]);
+        $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', null, null]);
         $client->expects($this->at(1))->method('__call')->with('keys', ['cache:*'])->willReturn(['cache:item']);
         $client->expects($this->at(2))->method('getOptions')->willReturn($options);
         $client->expects($this->at(3))->method('__call')->with('del', [['item']]);

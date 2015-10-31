@@ -15,7 +15,7 @@ class PredisAdapter implements CacheAdapterInterface
      */
     private $client;
     /**
-     * @var
+     * @var int|null
      */
     private $ttl;
 
@@ -51,7 +51,8 @@ class PredisAdapter implements CacheAdapterInterface
      */
     public function set($key, $value)
     {
-        $this->client->set($key, $value, $this->ttl);
+        $resolution = $this->ttl ? 'ex' : null;
+        $this->client->set($key, $value, $resolution, $this->ttl);
     }
 
     /**

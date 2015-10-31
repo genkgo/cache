@@ -3,6 +3,8 @@ namespace Genkgo\Cache\Unit;
 
 use Genkgo\Cache\AbstractTestCase;
 use Genkgo\Cache\Adapters\FileAdapter;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Class ArrayAdapterTest
@@ -10,15 +12,29 @@ use Genkgo\Cache\Adapters\FileAdapter;
  */
 class FileAdapterTest extends AbstractTestCase
 {
-    private $dir;
+    private static $dir;
 
-    protected function setUp()
+    public static function setUpBeforeClass()
     {
         $dir = sys_get_temp_dir() . '/cache';
         if (file_exists($dir) === false) {
             mkdir($dir);
         }
-        $this->dir = $dir;
+        self::$dir = $dir;
+    }
+
+    public static function tearDownAfterClass () {
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(self::$dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($files as $info) {
+            $todo = ($info->isDir() ? 'rmdir' : 'unlink');
+            $todo($info->getRealPath());
+        }
+
+        rmdir(self::$dir);
     }
 
     /**
@@ -26,7 +42,7 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testEmpty()
     {
-        $cache = new FileAdapter($this->dir);
+        $cache = new FileAdapter(self::$dir);
         $this->assertNull($cache->get('item'));
     }
 
@@ -35,7 +51,7 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testGetSet()
     {
-        $cache = new FileAdapter($this->dir);
+        $cache = new FileAdapter(self::$dir);
         $cache->set('item', 'content');
         $this->assertEquals('content', $cache->get('item'));
     }
@@ -45,7 +61,7 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testDelete()
     {
-        $cache = new FileAdapter($this->dir);
+        $cache = new FileAdapter(self::$dir);
         $cache->set('item', 'content');
         $this->assertEquals('content', $cache->get('item'));
         $cache->delete('item');
@@ -57,10 +73,10 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testChmod()
     {
-        $cache = new FileAdapter($this->dir, 0777);
+        $cache = new FileAdapter(self::$dir, 0777);
         $cache->set('item', 'content');
 
-        $perms = fileperms($this->dir . '/' . md5('item'));
+        $perms = fileperms(self::$dir . '/' . md5('item'));
         $this->assertEquals('0777', substr(sprintf('%o', $perms), -4));
     }
 
@@ -69,12 +85,12 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testDeleteAll()
     {
-        $cache = new FileAdapter($this->dir, 0777);
+        $cache = new FileAdapter(self::$dir, 0777);
         $cache->set('item', 'content');
-        $this->assertTrue(file_exists($this->dir . '/' . md5('item')));
+        $this->assertTrue(file_exists(self::$dir . '/' . md5('item')));
 
         $cache->delete('*');
-        $this->assertFalse(file_exists($this->dir . '/' . md5('item')));
+        $this->assertFalse(file_exists(self::$dir . '/' . md5('item')));
     }
 
     /**
@@ -82,19 +98,19 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testNamespaceSlash()
     {
-        if (file_exists($this->dir.'/namespace')) {
-            rmdir($this->dir.'/namespace');
+        if (file_exists(self::$dir.'/namespace')) {
+            rmdir(self::$dir.'/namespace');
         }
 
-        $cache = new FileAdapter($this->dir, 0777, '/');
+        $cache = new FileAdapter(self::$dir, 0777, '/');
         $cache->set('namespace/item', 'content');
-        $this->assertTrue(file_exists($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item')));
+        $this->assertTrue(file_exists(self::$dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item')));
 
-        $this->assertEquals('content', file_get_contents($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item')));
+        $this->assertEquals('content', file_get_contents(self::$dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item')));
         $this->assertEquals('content', $cache->get('namespace/item'));
 
         $cache->delete('namespace/*');
-        $this->assertFalse(file_exists($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item')));
+        $this->assertFalse(file_exists(self::$dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item')));
     }
 
     /**
@@ -102,18 +118,31 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testNamespaceOther()
     {
-        if (file_exists($this->dir.'/namespace')) {
-            rmdir($this->dir.'/namespace');
+        if (file_exists(self::$dir.'/namespace')) {
+            rmdir(self::$dir.'/namespace');
         }
 
-        $cache = new FileAdapter($this->dir, 0777, ':');
+        $cache = new FileAdapter(self::$dir, 0777, ':');
         $cache->set('namespace:item/sub', 'content');
-        $this->assertTrue(file_exists($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item/sub')));
+        $this->assertTrue(file_exists(self::$dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item/sub')));
 
-        $this->assertEquals('content', file_get_contents($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item/sub')));
+        $this->assertEquals('content', file_get_contents(self::$dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item/sub')));
         $this->assertEquals('content', $cache->get('namespace:item/sub'));
 
         $cache->delete('namespace:*');
-        $this->assertFalse(file_exists($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item/sub')));
+        $this->assertFalse(file_exists(self::$dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item/sub')));
+    }
+
+    /**
+     *
+     */
+    public function testTtl()
+    {
+        $cache = new FileAdapter(self::$dir, 0777, null, 1);
+        $cache->set('item', 'content');
+        $this->assertEquals('content', $cache->get('item'));
+
+        sleep(1.1);
+        $this->assertNull($cache->get('item'));
     }
 }

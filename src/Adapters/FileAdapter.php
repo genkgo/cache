@@ -21,17 +21,27 @@ class FileAdapter implements CacheAdapterInterface
      * @var null|string
      */
     private $directorySeparator;
+    /**
+     * @var null|int
+     */
+    private $ttl;
 
     /**
      * @param $directory
      * @param null $chmod
      * @param null $directorySeparator
+     * @param null $ttl
      */
-    public function __construct($directory, $chmod = null, $directorySeparator = null)
-    {
+    public function __construct(
+        $directory,
+        $chmod = null,
+        $directorySeparator = null,
+        $ttl = null
+    ) {
         $this->directory = $directory;
         $this->chmod = $chmod;
         $this->directorySeparator = $directorySeparator;
+        $this->ttl = $ttl;
     }
 
     /**
@@ -55,7 +65,7 @@ class FileAdapter implements CacheAdapterInterface
     public function get($key)
     {
         $file = $this->getFilename($key);
-        if ($this->exists($file)) {
+        if ($this->exists($file) && $this->valid($file)) {
             return file_get_contents($file);
         }
         return null;
@@ -99,6 +109,14 @@ class FileAdapter implements CacheAdapterInterface
     private function exists($file)
     {
         return file_exists($file);
+    }
+
+    /**
+     * @param $file
+     * @return bool
+     */
+    private function valid ($file) {
+        return $this->ttl === null || (filemtime($file) + $this->ttl > time());
     }
 
     /**
