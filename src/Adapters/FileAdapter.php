@@ -90,7 +90,8 @@ class FileAdapter implements CacheAdapterInterface
     /**
      * @param $pattern
      */
-    private function deleteGlob ($pattern) {
+    private function deleteGlob($pattern)
+    {
         list($directory, $file) = $this->getDirectoryAndFile($pattern);
         $list = new \GlobIterator($directory . '/' . $file);
 
@@ -115,7 +116,8 @@ class FileAdapter implements CacheAdapterInterface
      * @param $file
      * @return bool
      */
-    private function valid ($file) {
+    private function valid($file)
+    {
         return $this->ttl === null || (filemtime($file) + $this->ttl > time());
     }
 

@@ -23,7 +23,8 @@ class FileAdapterTest extends AbstractTestCase
         self::$dir = $dir;
     }
 
-    public static function tearDownAfterClass () {
+    public static function tearDownAfterClass()
+    {
         $files = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator(self::$dir, RecursiveDirectoryIterator::SKIP_DOTS),
             RecursiveIteratorIterator::CHILD_FIRST
