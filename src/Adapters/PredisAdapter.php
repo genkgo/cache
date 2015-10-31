@@ -63,7 +63,7 @@ class PredisAdapter implements CacheAdapterInterface
     public function delete($key)
     {
         if (strpos($key, '*') !== false) {
-            $key = $this->client->keys('*');
+            $key = $this->client->keys($key);
             $options = $this->client->getOptions();
             if (isset($options->prefix)) {
                 $length = strlen($options->prefix->getPrefix());
