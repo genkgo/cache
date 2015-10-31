@@ -10,12 +10,23 @@ use Genkgo\Cache\Adapters\FileAdapter;
  */
 class FileAdapterTest extends AbstractTestCase
 {
+    private $dir;
+
+    protected function setUp()
+    {
+        $dir = sys_get_temp_dir() . '/cache';
+        if (file_exists($dir) === false) {
+            mkdir($dir);
+        }
+        $this->dir = $dir;
+    }
+
     /**
      *
      */
     public function testEmpty()
     {
-        $cache = new FileAdapter(sys_get_temp_dir());
+        $cache = new FileAdapter($this->dir);
         $this->assertNull($cache->get('item'));
     }
 
@@ -24,7 +35,7 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testGetSet()
     {
-        $cache = new FileAdapter(sys_get_temp_dir());
+        $cache = new FileAdapter($this->dir);
         $cache->set('item', 'content');
         $this->assertEquals('content', $cache->get('item'));
     }
@@ -34,10 +45,35 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testDelete()
     {
-        $cache = new FileAdapter(sys_get_temp_dir());
+        $cache = new FileAdapter($this->dir);
         $cache->set('item', 'content');
         $this->assertEquals('content', $cache->get('item'));
         $cache->delete('item');
         $this->assertNull($cache->get('item'));
+    }
+
+    /**
+     *
+     */
+    public function testChmod()
+    {
+        $cache = new FileAdapter($this->dir, 0777);
+        $cache->set('item', 'content');
+
+        $perms = fileperms(sys_get_temp_dir() . '/' . md5('item'));
+        $this->assertEquals('0777', substr(sprintf('%o', $perms), -4));
+    }
+
+    /**
+     *
+     */
+    public function testDeleteAll()
+    {
+        $cache = new FileAdapter($this->dir, 0777);
+        $cache->set('item', 'content');
+        $this->assertTrue(file_exists($this->dir . '/' . md5('item')));
+
+        $cache->delete('*');
+        $this->assertFalse(file_exists($this->dir . '/' . md5('item')));
     }
 }

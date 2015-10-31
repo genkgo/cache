@@ -17,15 +17,21 @@ class NamespaceAdapter implements CacheAdapterInterface
      * @var string
      */
     private $nsName;
+    /**
+     * @var string
+     */
+    private $separator;
 
     /**
      * @param CacheAdapterInterface $cache
      * @param $nsName
+     * @param string $separator
      */
-    public function __construct(CacheAdapterInterface $cache, $nsName)
+    public function __construct(CacheAdapterInterface $cache, $nsName, $separator = '.')
     {
         $this->cache = $cache;
         $this->nsName = $nsName;
+        $this->separator = $separator;
     }
 
     /**
@@ -60,6 +66,6 @@ class NamespaceAdapter implements CacheAdapterInterface
      */
     private function getKey($key)
     {
-        return $this->nsName . '.' . $key;
+        return $this->nsName . $this->separator . $key;
     }
 }

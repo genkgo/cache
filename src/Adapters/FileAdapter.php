@@ -13,13 +13,19 @@ class FileAdapter implements CacheAdapterInterface
      * @var string
      */
     private $directory;
+    /**
+     * @var null|int
+     */
+    private $chmod;
 
     /**
      * @param $directory
+     * @param null $chmod
      */
-    public function __construct($directory)
+    public function __construct($directory, $chmod = null)
     {
         $this->directory = $directory;
+        $this->chmod = $chmod;
     }
 
     /**
@@ -30,6 +36,10 @@ class FileAdapter implements CacheAdapterInterface
     {
         $file = $this->getFilename($key);
         file_put_contents($file, $value);
+
+        if ($this->chmod !== null) {
+            chmod($file, $this->chmod);
+        }
     }
 
     /**
@@ -50,6 +60,16 @@ class FileAdapter implements CacheAdapterInterface
      */
     public function delete($key)
     {
+        if (strpos($key, '*') !== false) {
+            $list = new \GlobIterator($this->directory . '/' . $key);
+
+            foreach ($list as $cacheItem) {
+                unlink($cacheItem->getPathName());
+            }
+
+            return;
+        }
+
         $file = $this->getFilename($key);
         if ($this->exists($file)) {
             unlink($file);
