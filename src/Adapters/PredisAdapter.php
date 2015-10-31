@@ -51,8 +51,11 @@ class PredisAdapter implements CacheAdapterInterface
      */
     public function set($key, $value)
     {
-        $resolution = $this->ttl ? 'ex' : null;
-        $this->client->set($key, $value, $resolution, $this->ttl);
+        if ($this->ttl === null) {
+            $this->client->set($key, $value);
+        } else {
+            $this->client->set($key, $value, 'ex', $this->ttl);
+        }
     }
 
     /**
@@ -64,19 +67,27 @@ class PredisAdapter implements CacheAdapterInterface
     public function delete($key)
     {
         if (strpos($key, '*') !== false) {
-            $key = $this->client->keys($key);
-            $options = $this->client->getOptions();
-            if (isset($options->prefix)) {
-                $length = strlen($options->prefix->getPrefix());
-
-                $key = array_map(function ($key) use ($length) {
-                    return substr($key, $length);
-                }, $key);
-            }
+            $this->deleteGlob($key);
         } else {
-            $key = [$key];
+            $this->client->del([$key]);
+        }
+    }
+
+    private function deleteGlob ($pattern) {
+        $keys = $this->client->keys($pattern);
+        $options = $this->client->getOptions();
+        if (isset($options->prefix)) {
+            $length = strlen($options->prefix->getPrefix());
+
+            $keys = array_map(function ($key) use ($length) {
+                return substr($key, $length);
+            }, $keys);
         }
 
-        $this->client->del($key);
+        if (count($keys) === 0) {
+            return;
+        }
+
+        $this->client->del($keys);
     }
 }
