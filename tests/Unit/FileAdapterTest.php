@@ -60,7 +60,7 @@ class FileAdapterTest extends AbstractTestCase
         $cache = new FileAdapter($this->dir, 0777);
         $cache->set('item', 'content');
 
-        $perms = fileperms(sys_get_temp_dir() . '/' . md5('item'));
+        $perms = fileperms($this->dir . '/' . md5('item'));
         $this->assertEquals('0777', substr(sprintf('%o', $perms), -4));
     }
 
