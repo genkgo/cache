@@ -17,15 +17,21 @@ class FileAdapter implements CacheAdapterInterface
      * @var null|int
      */
     private $chmod;
+    /**
+     * @var null|string
+     */
+    private $directorySeparator;
 
     /**
      * @param $directory
      * @param null $chmod
+     * @param null $directorySeparator
      */
-    public function __construct($directory, $chmod = null)
+    public function __construct($directory, $chmod = null, $directorySeparator = null)
     {
         $this->directory = $directory;
         $this->chmod = $chmod;
+        $this->directorySeparator = $directorySeparator;
     }
 
     /**
@@ -113,12 +119,13 @@ class FileAdapter implements CacheAdapterInterface
     {
         $directory = $this->directory;
 
-        if (strpos($key, '/') !== false) {
-            $subDir = dirname($key);
-            $key = basename($key);
-
-            $directory = $this->directory . '/' . $subDir;
-            $this->createSubDirectoryIfNotExists($directory);
+        if ($this->directorySeparator !== null) {
+            while (($position = strpos($key, $this->directorySeparator)) !== false) {
+                $dirName = md5(substr($key, 0, $position));
+                $directory = $directory . '/' . $dirName;
+                $this->createSubDirectoryIfNotExists($directory);
+                $key = substr($key, $position + 1);
+            }
         }
 
         return [$directory, $key];

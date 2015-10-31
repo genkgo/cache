@@ -86,14 +86,34 @@ class FileAdapterTest extends AbstractTestCase
             rmdir($this->dir.'/namespace');
         }
 
-        $cache = new FileAdapter($this->dir, 0777);
+        $cache = new FileAdapter($this->dir, 0777, '/');
         $cache->set('namespace/item', 'content');
-        $this->assertTrue(file_exists($this->dir . '/namespace/' . md5('item')));
+        $this->assertTrue(file_exists($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item')));
 
-        $this->assertEquals('content', file_get_contents($this->dir . '/namespace/' . md5('item')));
+        $this->assertEquals('content', file_get_contents($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item')));
         $this->assertEquals('content', $cache->get('namespace/item'));
 
         $cache->delete('namespace/*');
-        $this->assertFalse(file_exists($this->dir . '/namespace/' . md5('item')));
+        $this->assertFalse(file_exists($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item')));
+    }
+
+    /**
+     *
+     */
+    public function testNamespaceOther()
+    {
+        if (file_exists($this->dir.'/namespace')) {
+            rmdir($this->dir.'/namespace');
+        }
+
+        $cache = new FileAdapter($this->dir, 0777, ':');
+        $cache->set('namespace:item/sub', 'content');
+        $this->assertTrue(file_exists($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item/sub')));
+
+        $this->assertEquals('content', file_get_contents($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item/sub')));
+        $this->assertEquals('content', $cache->get('namespace:item/sub'));
+
+        $cache->delete('namespace:*');
+        $this->assertFalse(file_exists($this->dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item/sub')));
     }
 }
