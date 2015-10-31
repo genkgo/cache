@@ -61,18 +61,28 @@ class FileAdapter implements CacheAdapterInterface
     public function delete($key)
     {
         if (strpos($key, '*') !== false) {
-            $list = new \GlobIterator($this->directory . '/' . $key);
-
-            foreach ($list as $cacheItem) {
-                unlink($cacheItem->getPathName());
-            }
-
+            $this->deleteGlob($key);
             return;
         }
 
         $file = $this->getFilename($key);
         if ($this->exists($file)) {
             unlink($file);
+        }
+    }
+
+    /**
+     * @param $pattern
+     */
+    private function deleteGlob ($pattern) {
+        list($directory, $file) = $this->getDirectoryAndFile($pattern);
+        $list = new \GlobIterator($directory . '/' . $file);
+
+        foreach ($list as $cacheItem) {
+            if ($cacheItem->isDir()) {
+                continue;
+            }
+            unlink($cacheItem->getPathName());
         }
     }
 
@@ -91,6 +101,39 @@ class FileAdapter implements CacheAdapterInterface
      */
     private function getFilename($key)
     {
-        return $this->directory . '/' . md5($key);
+        list($directory, $file) = $this->getDirectoryAndFile($key);
+        return $directory . '/' . md5($file);
+    }
+
+    /**
+     * @param $key
+     * @return array
+     */
+    private function getDirectoryAndFile($key)
+    {
+        $directory = $this->directory;
+
+        if (strpos($key, '/') !== false) {
+            $subDir = dirname($key);
+            $key = basename($key);
+
+            $directory = $this->directory . '/' . $subDir;
+            $this->createSubDirectoryIfNotExists($directory);
+        }
+
+        return [$directory, $key];
+    }
+
+    /**
+     * @param $directory
+     */
+    private function createSubDirectoryIfNotExists($directory)
+    {
+        if (file_exists($directory) === false) {
+            mkdir($directory);
+            if ($this->chmod !== null) {
+                chmod($directory, $this->chmod);
+            }
+        }
     }
 }

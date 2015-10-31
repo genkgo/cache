@@ -76,4 +76,24 @@ class FileAdapterTest extends AbstractTestCase
         $cache->delete('*');
         $this->assertFalse(file_exists($this->dir . '/' . md5('item')));
     }
+
+    /**
+     *
+     */
+    public function testNamespaceSlash()
+    {
+        if (file_exists($this->dir.'/namespace')) {
+            rmdir($this->dir.'/namespace');
+        }
+
+        $cache = new FileAdapter($this->dir, 0777);
+        $cache->set('namespace/item', 'content');
+        $this->assertTrue(file_exists($this->dir . '/namespace/' . md5('item')));
+
+        $this->assertEquals('content', file_get_contents($this->dir . '/namespace/' . md5('item')));
+        $this->assertEquals('content', $cache->get('namespace/item'));
+
+        $cache->delete('namespace/*');
+        $this->assertFalse(file_exists($this->dir . '/namespace/' . md5('item')));
+    }
 }
