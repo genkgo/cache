@@ -5,7 +5,7 @@ use DateTime;
 use DateTimeImmutable;
 use Exception;
 use Genkgo\Cache\AbstractTestCase;
-use Genkgo\Cache\Adapters\StampedeCallbackAdapter;
+use Genkgo\Cache\Adapter\StampedeCallbackAdapter;
 use Genkgo\Cache\CacheAdapterInterface;
 
 /**

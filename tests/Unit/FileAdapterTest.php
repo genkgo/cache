@@ -2,7 +2,7 @@
 namespace Genkgo\Cache\Unit;
 
 use Genkgo\Cache\AbstractTestCase;
-use Genkgo\Cache\Adapters\FileAdapter;
+use Genkgo\Cache\Adapter\FileAdapter;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 

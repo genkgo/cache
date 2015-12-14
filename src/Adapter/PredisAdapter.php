@@ -1,12 +1,13 @@
 <?php
-namespace Genkgo\Cache\Adapters;
+namespace Genkgo\Cache\Adapter;
 
 use Genkgo\Cache\CacheAdapterInterface;
+use Genkgo\Cache\SerializerInterface;
 use Predis\ClientInterface;
 
 /**
  * Class PredisAdapter
- * @package Genkgo\Cache\Adapters
+ * @package Genkgo\Cache\Adapter
  */
 class PredisAdapter implements CacheAdapterInterface
 {
@@ -15,17 +16,26 @@ class PredisAdapter implements CacheAdapterInterface
      */
     private $client;
     /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+    /**
      * @var int|null
      */
     private $ttl;
 
     /**
      * @param ClientInterface $client
+     * @param SerializerInterface $serializer
      * @param null $ttl
      */
-    public function __construct(ClientInterface $client, $ttl = null)
-    {
+    public function __construct(
+        ClientInterface $client,
+        SerializerInterface $serializer,
+        $ttl = null
+    ) {
         $this->client = $client;
+        $this->serializer = $serializer;
         $this->ttl = $ttl;
     }
 
@@ -39,7 +49,7 @@ class PredisAdapter implements CacheAdapterInterface
      */
     public function get($key)
     {
-        return $this->client->get($key);
+        return $this->serializer->deserialize($this->client->get($key));
     }
 
     /**
@@ -52,7 +62,7 @@ class PredisAdapter implements CacheAdapterInterface
     public function set($key, $value)
     {
         if ($this->ttl === null) {
-            $this->client->set($key, $value);
+            $this->client->set($key, $this->serializer->serialize($value));
         } else {
             $this->client->set($key, $value, 'ex', $this->ttl);
         }

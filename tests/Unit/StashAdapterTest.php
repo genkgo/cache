@@ -2,7 +2,7 @@
 namespace Genkgo\Cache\Unit;
 
 use Genkgo\Cache\AbstractTestCase;
-use Genkgo\Cache\Adapters\StashAdapter;
+use Genkgo\Cache\Adapter\StashAdapter;
 use Stash\Pool;
 
 /**

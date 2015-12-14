@@ -2,7 +2,8 @@
 namespace Genkgo\Cache\Unit;
 
 use Genkgo\Cache\AbstractTestCase;
-use Genkgo\Cache\Adapters\PredisAdapter;
+use Genkgo\Cache\Adapter\PredisAdapter;
+use Genkgo\Cache\Serializer\NoneSerializer;
 use Predis\ClientInterface;
 use Predis\Configuration\OptionsInterface;
 use Predis\Configuration\PrefixOption;
@@ -22,7 +23,7 @@ class PredisAdapterTest extends AbstractTestCase
         $client = $this->getMock(ClientInterface::class);
         $client->expects($this->at(0))->method('__call')->with('get', ['item'])->willReturn(null);
 
-        $cache = new PredisAdapter($client);
+        $cache = new PredisAdapter($client, new NoneSerializer());
         $this->assertNull($cache->get('item'));
     }
 
@@ -35,7 +36,7 @@ class PredisAdapterTest extends AbstractTestCase
         $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value'])->willReturn(null);
         $client->expects($this->at(1))->method('__call')->with('get', ['item'])->willReturn('value');
 
-        $cache = new PredisAdapter($client);
+        $cache = new PredisAdapter($client, new NoneSerializer());
         $cache->set('item', 'value');
         $this->assertEquals('value', $cache->get('item'));
     }
@@ -49,7 +50,7 @@ class PredisAdapterTest extends AbstractTestCase
         $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value']);
         $client->expects($this->at(1))->method('__call')->with('del', [['item']]);
 
-        $cache = new PredisAdapter($client);
+        $cache = new PredisAdapter($client, new NoneSerializer());
         $cache->set('item', 'value');
         $cache->delete('item');
     }
@@ -62,7 +63,7 @@ class PredisAdapterTest extends AbstractTestCase
         $client = $this->getMock(ClientInterface::class);
         $client->expects($this->at(0))->method('__call')->with('set', ['item', 'value', 'ex', 300]);
 
-        $cache = new PredisAdapter($client, 300);
+        $cache = new PredisAdapter($client, new NoneSerializer(), 300);
         $cache->set('item', 'value');
     }
 
@@ -77,7 +78,7 @@ class PredisAdapterTest extends AbstractTestCase
         $client->expects($this->at(2))->method('getOptions')->willReturn(new stdClass());
         $client->expects($this->at(3))->method('__call')->with('del', [['item']]);
 
-        $cache = new PredisAdapter($client);
+        $cache = new PredisAdapter($client, new NoneSerializer());
         $cache->set('item', 'value');
         $cache->delete('*');
     }
@@ -96,7 +97,7 @@ class PredisAdapterTest extends AbstractTestCase
         $client->expects($this->at(2))->method('getOptions')->willReturn($options);
         $client->expects($this->at(3))->method('__call')->with('del', [['item']]);
 
-        $cache = new PredisAdapter($client);
+        $cache = new PredisAdapter($client, new NoneSerializer());
         $cache->set('item', 'value');
         $cache->delete('cache:*');
     }

@@ -2,7 +2,7 @@
 namespace Genkgo\Cache\Unit;
 
 use Genkgo\Cache\AbstractTestCase;
-use Genkgo\Cache\Adapters\NamespaceAdapter;
+use Genkgo\Cache\Adapter\NamespaceAdapter;
 use Genkgo\Cache\CacheAdapterInterface;
 
 /**

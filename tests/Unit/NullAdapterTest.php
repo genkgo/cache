@@ -2,7 +2,7 @@
 namespace Genkgo\Cache\Unit;
 
 use Genkgo\Cache\AbstractTestCase;
-use Genkgo\Cache\Adapters\NullAdapter;
+use Genkgo\Cache\Adapter\NullAdapter;
 
 /**
  * Class NullAdapterTest

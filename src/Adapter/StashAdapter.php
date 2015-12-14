@@ -1,12 +1,12 @@
 <?php
-namespace Genkgo\Cache\Adapters;
+namespace Genkgo\Cache\Adapter;
 
 use Genkgo\Cache\CacheAdapterInterface;
 use Stash\Pool;
 
 /**
  * Class StashAdapter
- * @package Genkgo\Cache\Adapters\Stash
+ * @package Genkgo\Cache\Adapter\Stash
  */
 class StashAdapter implements CacheAdapterInterface
 {

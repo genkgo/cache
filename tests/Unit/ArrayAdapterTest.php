@@ -2,7 +2,7 @@
 namespace Genkgo\Cache\Unit;
 
 use Genkgo\Cache\AbstractTestCase;
-use Genkgo\Cache\Adapters\ArrayAdapter;
+use Genkgo\Cache\Adapter\ArrayAdapter;
 
 /**
  * Class ArrayAdapterTest

@@ -1,5 +1,5 @@
 <?php
-namespace Genkgo\Cache\Adapters;
+namespace Genkgo\Cache\Adapter;
 
 use Genkgo\Cache\CacheAdapterInterface;
 

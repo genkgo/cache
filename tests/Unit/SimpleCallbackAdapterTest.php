@@ -3,7 +3,7 @@ namespace Genkgo\Cache\Unit;
 
 use Genkgo\Cache\AbstractTestCase;
 use Genkgo\Cache\CacheAdapterInterface;
-use Genkgo\Cache\Adapters\SimpleCallbackAdapter;
+use Genkgo\Cache\Adapter\SimpleCallbackAdapter;
 
 /**
  * Class SimpleCallbackAdapterTest

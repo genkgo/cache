@@ -1,11 +1,11 @@
 <?php
-namespace Genkgo\Cache\Adapters;
+namespace Genkgo\Cache\Adapter;
 
 use Genkgo\Cache\CacheAdapterInterface;
 
 /**
  * Class ArrayAdapter
- * @package Genkgo\Cache\Adapters
+ * @package Genkgo\Cache\Adapter
  */
 class ArrayAdapter implements CacheAdapterInterface
 {
