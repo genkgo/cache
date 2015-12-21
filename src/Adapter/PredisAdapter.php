@@ -64,7 +64,7 @@ class PredisAdapter implements CacheAdapterInterface
         if ($this->ttl === null) {
             $this->client->set($key, $this->serializer->serialize($value));
         } else {
-            $this->client->set($key, $value, 'ex', $this->ttl);
+            $this->client->set($key, $this->serializer->serialize($value), 'ex', $this->ttl);
         }
     }
 
