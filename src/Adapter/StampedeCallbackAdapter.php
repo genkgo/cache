@@ -119,7 +119,7 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
 
     /**
      * @param $key
-     * @param null $pregenerateIn
+     * @param integer $pregenerateIn
      */
     private function unlock($key, $pregenerateIn = null)
     {
