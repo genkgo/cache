@@ -2,6 +2,7 @@
 namespace Genkgo\Cache\Adapter;
 
 use Genkgo\Cache\CacheAdapterInterface;
+use Genkgo\Cache\SerializerInterface;
 
 /**
  * Class FileAdapter
@@ -25,15 +26,21 @@ class FileAdapter implements CacheAdapterInterface
      * @var null|int
      */
     private $ttl;
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
 
     /**
      * @param $directory
+     * @param SerializerInterface $serializer
      * @param null $chmod
      * @param null $directorySeparator
      * @param null $ttl
      */
     public function __construct(
         $directory,
+        SerializerInterface $serializer,
         $chmod = null,
         $directorySeparator = null,
         $ttl = null
@@ -42,6 +49,7 @@ class FileAdapter implements CacheAdapterInterface
         $this->chmod = $chmod;
         $this->directorySeparator = $directorySeparator;
         $this->ttl = $ttl;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -51,7 +59,7 @@ class FileAdapter implements CacheAdapterInterface
     public function set($key, $value)
     {
         $file = $this->getFilename($key);
-        file_put_contents($file, $value);
+        file_put_contents($file, $this->serializer->serialize($value));
 
         if ($this->chmod !== null) {
             chmod($file, $this->chmod);
@@ -66,7 +74,7 @@ class FileAdapter implements CacheAdapterInterface
     {
         $file = $this->getFilename($key);
         if ($this->exists($file) && $this->valid($file)) {
-            return file_get_contents($file);
+            return $this->serializer->deserialize(file_get_contents($file));
         }
         return null;
     }

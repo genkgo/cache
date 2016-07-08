@@ -3,6 +3,8 @@ namespace Genkgo\Cache\Unit;
 
 use Genkgo\Cache\AbstractTestCase;
 use Genkgo\Cache\Adapter\FileAdapter;
+use Genkgo\Cache\Serializer\JsonSerializer;
+use Genkgo\Cache\Serializer\NoneSerializer;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
@@ -43,7 +45,7 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testEmpty()
     {
-        $cache = new FileAdapter(self::$dir);
+        $cache = new FileAdapter(self::$dir, new NoneSerializer());
         $this->assertNull($cache->get('item'));
     }
 
@@ -52,7 +54,7 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testGetSet()
     {
-        $cache = new FileAdapter(self::$dir);
+        $cache = new FileAdapter(self::$dir, new NoneSerializer());
         $cache->set('item', 'content');
         $this->assertEquals('content', $cache->get('item'));
     }
@@ -62,7 +64,7 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testDelete()
     {
-        $cache = new FileAdapter(self::$dir);
+        $cache = new FileAdapter(self::$dir, new NoneSerializer());
         $cache->set('item', 'content');
         $this->assertEquals('content', $cache->get('item'));
         $cache->delete('item');
@@ -74,7 +76,7 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testChmod()
     {
-        $cache = new FileAdapter(self::$dir, 0777);
+        $cache = new FileAdapter(self::$dir, new NoneSerializer(), 0777);
         $cache->set('item', 'content');
 
         $perms = fileperms(self::$dir . '/' . md5('item'));
@@ -86,7 +88,7 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testDeleteAll()
     {
-        $cache = new FileAdapter(self::$dir, 0777);
+        $cache = new FileAdapter(self::$dir, new NoneSerializer(), 0777);
         $cache->set('item', 'content');
         $this->assertTrue(file_exists(self::$dir . '/' . md5('item')));
 
@@ -103,7 +105,7 @@ class FileAdapterTest extends AbstractTestCase
             rmdir(self::$dir.'/namespace');
         }
 
-        $cache = new FileAdapter(self::$dir, 0777, '/');
+        $cache = new FileAdapter(self::$dir, new NoneSerializer(), 0777, '/');
         $cache->set('namespace/item', 'content');
         $this->assertTrue(file_exists(self::$dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item')));
 
@@ -123,7 +125,7 @@ class FileAdapterTest extends AbstractTestCase
             rmdir(self::$dir.'/namespace');
         }
 
-        $cache = new FileAdapter(self::$dir, 0777, ':');
+        $cache = new FileAdapter(self::$dir, new NoneSerializer(), 0777, ':');
         $cache->set('namespace:item/sub', 'content');
         $this->assertTrue(file_exists(self::$dir . '/89801e9e98979062e84647433a8ed3e9/' . md5('item/sub')));
 
@@ -139,11 +141,21 @@ class FileAdapterTest extends AbstractTestCase
      */
     public function testTtl()
     {
-        $cache = new FileAdapter(self::$dir, 0777, null, 1);
+        $cache = new FileAdapter(self::$dir, new NoneSerializer(), 0777, null, 1);
         $cache->set('item', 'content');
         $this->assertEquals('content', $cache->get('item'));
 
         sleep(1.1);
         $this->assertNull($cache->get('item'));
+    }
+
+    /**
+     *
+     */
+    public function testArray()
+    {
+        $cache = new FileAdapter(self::$dir, new JsonSerializer());
+        $cache->set('item', ['content']);
+        $this->assertEquals(['content'], $cache->get('item'));
     }
 }

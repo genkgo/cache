@@ -2,6 +2,7 @@
 namespace Genkgo\Cache\Adapter;
 
 use Genkgo\Cache\CacheAdapterInterface;
+use Genkgo\Cache\SerializerInterface;
 use Stash\Pool;
 
 /**
@@ -14,20 +15,25 @@ class StashAdapter implements CacheAdapterInterface
      * @var Pool
      */
     private $pool;
-
     /**
      * @var null
      */
     private $expire;
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
 
     /**
      * @param Pool $pool
+     * @param SerializerInterface $serializer
      * @param null $expire
      */
-    public function __construct(Pool $pool, $expire = null)
+    public function __construct(Pool $pool, SerializerInterface $serializer, $expire = null)
     {
         $this->pool = $pool;
         $this->expire = $expire;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -41,7 +47,7 @@ class StashAdapter implements CacheAdapterInterface
     {
         $item = $this->pool->getItem($key);
         if ($item->isMiss() === false) {
-            return $item->get();
+            return $this->serializer->deserialize($item->get());
         } else {
             return null;
         }
@@ -57,7 +63,7 @@ class StashAdapter implements CacheAdapterInterface
     public function set($key, $value)
     {
         $item = $this->pool->getItem($key);
-        $item->set($value, $this->expire);
+        $item->set($this->serializer->serialize($value), $this->expire);
     }
 
     /**

@@ -31,6 +31,7 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
 
     /**
      * @param CacheAdapterInterface $cache
+     * @param $pregenerateInSeconds
      */
     public function __construct(CacheAdapterInterface $cache, $pregenerateInSeconds)
     {
@@ -118,6 +119,7 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
 
     /**
      * @param $key
+     * @param null $pregenerateIn
      */
     private function unlock($key, $pregenerateIn = null)
     {
