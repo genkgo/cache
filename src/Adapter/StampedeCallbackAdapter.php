@@ -98,7 +98,7 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
         try {
             $item = $cb();
         } catch (Exception $e) {
-            if ($this->useInvalidDataOnException) {
+            if ($this->useInvalidDataOnException && $currentItem !== null) {
                 $item = $currentItem;
             } else {
                 $this->unlock($key, 0);
