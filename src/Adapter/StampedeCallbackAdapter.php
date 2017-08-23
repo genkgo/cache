@@ -32,15 +32,20 @@ class StampedeCallbackAdapter implements CallbackCacheInterface
     /**
      * @param CacheAdapterInterface $cache
      * @param $pregenerateInSeconds
+     * @param bool $useInvalidDataOnException
      */
-    public function __construct(CacheAdapterInterface $cache, $pregenerateInSeconds)
-    {
+    public function __construct(
+        CacheAdapterInterface $cache,
+        $pregenerateInSeconds,
+        $useInvalidDataOnException = false
+    ) {
         $this->cache = $cache;
         $this->pregenerateIn  = $pregenerateInSeconds;
+        $this->useInvalidDataOnException = $useInvalidDataOnException;
     }
 
     /**
-     *
+     * @deprecated
      */
     public function useInvalidDataOnException()
     {
