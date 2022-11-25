@@ -33,6 +33,10 @@ final class JsonSerializer implements SerializerInterface {
      */
     public function deserialize($item)
     {
+        if ($item === null) {
+            return null;
+        }
+
         return json_decode($item, $this->decodeAssoc);
     }
 }
